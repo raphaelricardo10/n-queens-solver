@@ -2,11 +2,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-
-class NoGoodCandidatesException(Exception):
-    pass
-
-
 @dataclass
 class Queen:
     row: int
@@ -14,7 +9,7 @@ class Queen:
     previous: Optional[Queen] = None
     available_rows: Optional[set[int]] = None
     available_columns: Optional[set[int]] = None
-    good_candidates: set[Queen] = field(init=False)
+    solutions: set[frozenset[Queen]] = field(init=False)
 
     @property
     def _key(self):
@@ -30,7 +25,7 @@ class Queen:
         return hash(self._key)
 
     def __post_init__(self):
-        self.good_candidates = set()
+        self.solutions = set()
 
         if self.previous:
             assert self.previous.available_rows
@@ -60,20 +55,30 @@ class Queen:
 
         return True
 
-    def have_no_good_candidates(self):
-        return len(self.good_candidates) == 0
-
-    def is_root(self) -> bool:
+    def is_leaf(self) -> bool:
         if self.available_rows is None:
             return False
 
         return len(self.available_rows) == 0
 
+    def is_root(self) -> bool:
+        return self.previous is None
+
+    def generate_solutions(self, _partial_solution: list[Queen] = []):
+        _partial_solution.append(self)
+
+        if self.is_root():
+            self.solutions.add(frozenset(_partial_solution))
+            return
+
+        self.previous.generate_solutions(_partial_solution)
+
     def search(self):
         assert self.available_rows is not None
         assert self.available_columns is not None
 
-        if self.is_root():
+        if self.is_leaf():
+            self.generate_solutions([])
             return
 
         for row in self.available_rows:
@@ -87,26 +92,4 @@ class Queen:
                 if not self.can_add_queen(new_queen):
                     continue
 
-                try:
-                    new_queen.search()
-                    self.good_candidates.add(new_queen)
-
-                except NoGoodCandidatesException:
-                    pass
-
-        if self.have_no_good_candidates():
-            raise NoGoodCandidatesException
-
-    def get_solution(self, _last_insertions: list[Queen] = []) -> set[frozenset[Queen]]:
-        _last_insertions.append(self)
-
-        assert self.available_rows is not None
-        if len(self.available_rows) == 0:
-            return {frozenset(_last_insertions)}
-
-        solution = set[frozenset[Queen]]()
-        for candidate in self.good_candidates:
-            partial_solution = candidate.get_solution(_last_insertions.copy())
-            solution.update(partial_solution)
-
-        return solution
+                new_queen.search()
