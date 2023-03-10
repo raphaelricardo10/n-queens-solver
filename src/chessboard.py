@@ -1,6 +1,7 @@
+import multiprocessing
 from dataclasses import dataclass
 
-from queen import NoGoodCandidatesException, Queen
+from queen import Queen
 
 
 @dataclass
@@ -20,8 +21,10 @@ class Chessboard:
 
     def search_for_n_queens(self) -> set[frozenset[Queen]]:
         entrypoints = range(0, self.middle)
-        solutions = set[frozenset[Queen]]()
+        all_solutions = set[frozenset[Queen]]()
         all_rows_and_columns = set(range(0, self.size))
+        processes = []
+        starting_queens = []
 
         for row in entrypoints:
             for column in entrypoints:
@@ -31,14 +34,18 @@ class Chessboard:
                     available_rows=all_rows_and_columns - {row},
                     available_columns=all_rows_and_columns - {column},
                 )
+                starting_queens.append(queen)
 
-                try:
-                    queen.search()
-                    solutions.update(queen.get_solution())
+                p = multiprocessing.Process(target=queen.search)
+                p.start()
+                processes.append(p)
 
-                except NoGoodCandidatesException:
-                    pass
+        for p in processes:
+            p.join()
 
-        return solutions
+        for queen in starting_queens:
+            all_solutions.update(queen.solutions)
+
+        return all_solutions
 
                 
