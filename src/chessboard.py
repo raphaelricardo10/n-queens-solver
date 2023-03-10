@@ -20,25 +20,25 @@ class Chessboard:
         pass
 
     def search_for_n_queens(self) -> set[frozenset[Queen]]:
-        entrypoints = range(0, self.middle)
         all_solutions = set[frozenset[Queen]]()
         all_rows_and_columns = set(range(0, self.size))
-        processes = []
-        starting_queens = []
+        processes: list[multiprocessing.Process] = []
+        starting_queens: list[Queen] = []
 
-        for row in entrypoints:
-            for column in entrypoints:
-                queen = Queen(
-                    row,
-                    column,
-                    available_rows=all_rows_and_columns - {row},
-                    available_columns=all_rows_and_columns - {column},
-                )
-                starting_queens.append(queen)
+        for column in range(0, self.size):
+            queen = Queen(
+                0,
+                column,
+                available_rows=all_rows_and_columns - {0},
+                available_columns=all_rows_and_columns - {column},
+            )
+            # queen.search()
+            # all_solutions.update(queen.solutions)
 
-                p = multiprocessing.Process(target=queen.search)
-                p.start()
-                processes.append(p)
+            starting_queens.append(queen)
+            p = multiprocessing.Process(target=queen.search)
+            p.start()
+            processes.append(p)
 
         for p in processes:
             p.join()
@@ -48,4 +48,3 @@ class Chessboard:
 
         return all_solutions
 
-                
