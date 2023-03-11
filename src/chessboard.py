@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from copy import deepcopy
 from dataclasses import dataclass, field
 
 from queen import Queen
@@ -59,3 +62,14 @@ class Chessboard:
         self.available_rows.add(queen.row)
         self.available_columns.add(queen.column)
 
+    def rotate(self) -> Chessboard:
+        rotated_queens: set[Queen] = set()
+
+        for queen in self.queens:
+            rotated_queen = Queen(row=self.size - queen.column - 1, column=queen.row)
+            rotated_queens.add(rotated_queen)
+
+        resulting_chessboard = deepcopy(self)
+        resulting_chessboard._queens = rotated_queens
+
+        return resulting_chessboard
