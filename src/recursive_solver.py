@@ -41,10 +41,30 @@ class RecursiveSolver:
         child_node.is_leaf = len(child_node.data.available_rows) == 0
 
         return child_node
+    
+    @staticmethod
+    def make_rotations(chessboard: Chessboard) -> list[Chessboard]:
+        last_rotation = chessboard
+        solutions: list[Chessboard] = []
+
+        for _ in range(0, 3):
+            last_rotation = last_rotation.rotate()
+            solutions.append(last_rotation)
+
+        return solutions
+
+    def update_solutions(self, chessboard: Chessboard):
+        rotated_chessboards = self.make_rotations(chessboard)
+        # reflected_solutions = [x.reflect() for x in rotated_chessboards]
+
+        for symmetry_chessboard in rotated_chessboards:
+            self.solutions.add(frozenset(symmetry_chessboard.queens))
+
+        self.solutions.add(frozenset(chessboard.queens))
 
     def branch_and_search(self, node: Node[Chessboard]):
         if node.is_leaf:
-            self.solutions.add(frozenset(node.data.queens))
+            self.update_solutions(node.data)
             return
 
         for row in node.data.available_rows:
