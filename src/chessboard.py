@@ -1,5 +1,4 @@
-import multiprocessing
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from queen import Queen
 
@@ -7,44 +6,56 @@ from queen import Queen
 @dataclass
 class Chessboard:
     size: int
+    available_rows: set[int] = field(init=False)
+    available_columns: set[int] = field(init=False)
+    _queens: set[Queen] = field(init=False, default_factory=set)
+
+    def __post_init__(self):
+        self.available_rows = set(range(0, self.size))
+        self.available_columns = set(range(0, self.size))
+
+    @property
+    def queens(self):
+        return self._queens
 
     @property
     def middle(self) -> int:
-        if self.size % 2 == 0:
-            return int(self.size / 2)
-
-        return int((self.size + 1) / 2)
+        return self.static_middle(self.size)
 
     @staticmethod
-    def combine_solutions():
-        pass
+    def static_middle(size: int) -> int:
+        if size % 2 == 0:
+            return int(size / 2)
 
-    def search_for_n_queens(self) -> set[frozenset[Queen]]:
-        all_solutions = set[frozenset[Queen]]()
-        all_rows_and_columns = set(range(0, self.size))
-        processes: list[multiprocessing.Process] = []
-        starting_queens: list[Queen] = []
+        return int((size + 1) / 2)
 
-        for column in range(0, self.size):
-            queen = Queen(
-                0,
-                column,
-                available_rows=all_rows_and_columns - {0},
-                available_columns=all_rows_and_columns - {column},
-            )
-            # queen.search()
-            # all_solutions.update(queen.solutions)
+    @staticmethod
+    def is_in_diagonal(queen1: Queen, queen2: Queen) -> bool:
+        rise = abs(queen1.row - queen2.row)
+        run = abs(queen1.column - queen2.column)
 
-            starting_queens.append(queen)
-            p = multiprocessing.Process(target=queen.search)
-            p.start()
-            processes.append(p)
+        return rise == run
 
-        for p in processes:
-            p.join()
+    def is_in_diagonal_with_any_queen(self, new_queen: Queen) -> bool:
+        for queen in self.queens:
+            if self.is_in_diagonal(queen, new_queen):
+                return True
 
-        for queen in starting_queens:
-            all_solutions.update(queen.solutions)
+        return False
 
-        return all_solutions
+    def can_add_queen(self, new_queen: Queen) -> bool:
+        if self.is_in_diagonal_with_any_queen(new_queen):
+            return False
+
+        return True
+    
+    def add_queen(self, new_queen: Queen):
+        self.queens.add(new_queen)
+        self.available_rows.remove(new_queen.row)
+        self.available_columns.remove(new_queen.column)
+
+    def remove_queen(self, queen: Queen):
+        self.queens.remove(queen)
+        self.available_rows.add(queen.row)
+        self.available_columns.add(queen.column)
 
