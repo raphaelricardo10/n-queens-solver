@@ -1,10 +1,29 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from functools import wraps
 from dataclasses import dataclass, field
+from typing import Callable
 
 from queen import Queen
 
+QueenFactory = Callable[["Chessboard", Queen], Queen]
+
+def chessboard_modifier(func: QueenFactory) -> Callable[[QueenFactory], Chessboard]:
+    @wraps(func)
+    def wrapper(self: Chessboard) -> Chessboard:
+        modified_queens: set[Queen] = set()
+
+        for queen in self.queens:
+            modified_queen = func(self, queen)
+            modified_queens.add(modified_queen)
+
+        resulting_chessboard = deepcopy(self)
+        resulting_chessboard._queens = modified_queens # type: ignore
+
+        return resulting_chessboard
+    
+    return wrapper # type: ignore
 
 @dataclass
 class Chessboard:
@@ -62,26 +81,10 @@ class Chessboard:
         self.available_rows.add(queen.row)
         self.available_columns.add(queen.column)
 
-    def rotate(self) -> Chessboard:
-        rotated_queens: set[Queen] = set()
+    @chessboard_modifier
+    def rotate(self, queen: Queen) -> Queen:
+        return Queen(row=self.size - queen.column - 1, column=queen.row)
 
-        for queen in self.queens:
-            rotated_queen = Queen(row=self.size - queen.column - 1, column=queen.row)
-            rotated_queens.add(rotated_queen)
-
-        resulting_chessboard = deepcopy(self)
-        resulting_chessboard._queens = rotated_queens
-
-        return resulting_chessboard
-
-    def reflect_horizontal(self) -> Chessboard:
-        rotated_queens: set[Queen] = set()
-
-        for queen in self.queens:
-            rotated_queen = Queen(row=self.size - queen.row - 1, column=queen.column)
-            rotated_queens.add(rotated_queen)
-
-        resulting_chessboard = deepcopy(self)
-        resulting_chessboard._queens = rotated_queens
-
-        return resulting_chessboard
+    @chessboard_modifier
+    def reflect_horizontal(self, queen: Queen) -> Queen:
+        return Queen(row=self.size - queen.row - 1, column=queen.column)
