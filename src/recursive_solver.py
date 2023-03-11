@@ -55,9 +55,9 @@ class RecursiveSolver:
 
     def update_solutions(self, chessboard: Chessboard):
         rotated_chessboards = self.make_rotations(chessboard)
-        # reflected_solutions = [x.reflect() for x in rotated_chessboards]
+        reflected_solutions = [x.reflect_horizontal() for x in rotated_chessboards]
 
-        for symmetry_chessboard in rotated_chessboards:
+        for symmetry_chessboard in rotated_chessboards + reflected_solutions:
             self.solutions.add(frozenset(symmetry_chessboard.queens))
 
         self.solutions.add(frozenset(chessboard.queens))
