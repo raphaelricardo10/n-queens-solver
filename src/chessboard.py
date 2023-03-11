@@ -73,3 +73,15 @@ class Chessboard:
         resulting_chessboard._queens = rotated_queens
 
         return resulting_chessboard
+
+    def reflect_horizontal(self) -> Chessboard:
+        rotated_queens: set[Queen] = set()
+
+        for queen in self.queens:
+            rotated_queen = Queen(row=self.size - queen.row - 1, column=queen.column)
+            rotated_queens.add(rotated_queen)
+
+        resulting_chessboard = deepcopy(self)
+        resulting_chessboard._queens = rotated_queens
+
+        return resulting_chessboard
