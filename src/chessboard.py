@@ -9,6 +9,7 @@ from queen import Queen
 
 QueenFactory = Callable[["Chessboard", Queen], Queen]
 
+
 def chessboard_modifier(func: QueenFactory) -> Callable[[QueenFactory], Chessboard]:
     @wraps(func)
     def wrapper(self: Chessboard) -> Chessboard:
@@ -19,11 +20,12 @@ def chessboard_modifier(func: QueenFactory) -> Callable[[QueenFactory], Chessboa
             modified_queens.add(modified_queen)
 
         resulting_chessboard = deepcopy(self)
-        resulting_chessboard._queens = modified_queens # type: ignore
+        resulting_chessboard._queens = modified_queens  # type: ignore
 
         return resulting_chessboard
-    
-    return wrapper # type: ignore
+
+    return wrapper  # type: ignore
+
 
 @dataclass
 class Chessboard:
@@ -70,7 +72,7 @@ class Chessboard:
             return False
 
         return True
-    
+
     def add_queen(self, new_queen: Queen):
         self.queens.add(new_queen)
         self.available_rows.remove(new_queen.row)

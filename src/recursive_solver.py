@@ -22,11 +22,13 @@ class Node(Generic[T]):
 
     def __hash__(self) -> int:
         return self.data.__hash__()
-    
+
     def is_root(self) -> bool:
         return self.depth == 0
 
+
 Solutions: TypeAlias = set[frozenset[Queen]]
+
 
 @dataclass
 class RecursiveSolver:
@@ -34,14 +36,16 @@ class RecursiveSolver:
     solutions: Solutions = field(init=False, default_factory=set)
 
     @staticmethod
-    def create_branch_with_queen(parent_node: Node[Chessboard], new_queen: Queen) -> Node[Chessboard]:
+    def create_branch_with_queen(
+        parent_node: Node[Chessboard], new_queen: Queen
+    ) -> Node[Chessboard]:
         child_node = deepcopy(parent_node)
         child_node.depth += 1
         child_node.data.add_queen(new_queen)
         child_node.is_leaf = len(child_node.data.available_rows) == 0
 
         return child_node
-    
+
     @staticmethod
     def make_rotations(chessboard: Chessboard) -> list[Chessboard]:
         last_rotation = chessboard
