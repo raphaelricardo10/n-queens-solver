@@ -2,8 +2,8 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Generic, Optional, TypeAlias, TypeVar
 
-from queen import Queen
-from chessboard import Chessboard
+from domain import Queen
+from domain import Chessboard
 
 T = TypeVar("T")
 

@@ -1,10 +1,10 @@
 from copy import copy
+from typing import Iterator
 from itertools import cycle
 from dataclasses import dataclass, field
-from typing import Generator, Iterator
 
-from queen import Queen
-from knight_movements import KnightMovements, KnightMovementsMember
+from domain import Queen
+from solvers.greedy_solver.knight_movements import KnightMovements, KnightMovementsMember
 
 
 @dataclass
