@@ -1,6 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Generic, TypeAlias, TypeVar
+from typing import Generic, Optional, TypeAlias, TypeVar
 
 from queen import Queen
 from chessboard import Chessboard
@@ -57,19 +57,19 @@ class RecursiveSolver:
 
         return solutions
 
-    def update_solutions(self, chessboard: Chessboard):
+    def generate_symmetry_solutions(self, chessboard: Chessboard) -> Solutions:
         rotated_chessboards = self.make_rotations(chessboard)
         reflected_solutions = [x.reflect_horizontal() for x in rotated_chessboards]
+        solutions: Solutions = {frozenset(chessboard.queens)}
 
         for symmetry_chessboard in rotated_chessboards + reflected_solutions:
-            self.solutions.add(frozenset(symmetry_chessboard.queens))
+            solutions.add(frozenset(symmetry_chessboard.queens))
 
-        self.solutions.add(frozenset(chessboard.queens))
+        return solutions
 
-    def branch_and_search(self, node: Node[Chessboard]):
+    def branch_and_search(self, node: Node[Chessboard]) -> Optional[Chessboard]:
         if node.is_leaf:
-            self.update_solutions(node.data)
-            return
+            return node.data
 
         for row in node.data.available_rows:
             for column in node.data.available_columns:
@@ -77,11 +77,15 @@ class RecursiveSolver:
 
                 if node.data.can_add_queen(queen):
                     new_node = self.create_branch_with_queen(node, queen)
-                    self.branch_and_search(new_node)
+                    result = self.branch_and_search(new_node)
+
+                    if result is not None:
+                        return result
 
     def search_n_queens(self) -> Solutions:
         starting_row = 0
         starting_columns = range(0, Chessboard.static_middle(self.size))
+        result = None
 
         for column in starting_columns:
             queen = Queen(starting_row, column)
@@ -89,6 +93,12 @@ class RecursiveSolver:
             chessboard.add_queen(queen)
 
             node = Node(data=chessboard, is_leaf=False)
-            self.branch_and_search(node)
+            result = self.branch_and_search(node)
 
-        return self.solutions
+            if result is not None:
+                break
+
+        if result is not None:
+            return self.generate_symmetry_solutions(result)
+
+        return Solutions()
