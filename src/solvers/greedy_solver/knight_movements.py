@@ -1,9 +1,10 @@
 from enum import Enum, member
 from typing import Callable
 
-from queen import Queen
+from domain import Queen
 
 KnightMovementsMember = Callable[[Queen], None]
+
 
 class KnightMovements(Enum):
     @member

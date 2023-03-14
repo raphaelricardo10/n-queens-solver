@@ -5,7 +5,7 @@ from functools import wraps
 from dataclasses import dataclass, field
 from typing import Callable
 
-from queen import Queen
+from domain import Queen
 
 QueenFactory = Callable[["Chessboard", Queen], Queen]
 

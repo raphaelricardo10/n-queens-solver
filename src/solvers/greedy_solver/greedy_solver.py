@@ -2,10 +2,10 @@ from copy import copy
 from typing import TypeAlias
 from dataclasses import dataclass
 
-from queen import Queen
-from chessboard import Chessboard
-from knight_mover import KnightMover
-from knight_movements import KnightMovements
+from domain import Queen
+from domain import Chessboard
+from solvers.greedy_solver.knight_mover import KnightMover
+from solvers.greedy_solver.knight_movements import KnightMovements
 
 Solutions: TypeAlias = set[frozenset[Queen]]
 
