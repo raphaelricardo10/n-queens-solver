@@ -52,6 +52,21 @@ class Chessboard:
             return int(size / 2)
 
         return int((size + 1) / 2)
+    
+    def is_under_limits(self, queen: Queen):
+        if queen.row < 0:
+            return False
+
+        if queen.column < 0:
+            return False
+
+        if queen.row >= self.size:
+            return False
+        
+        if queen.column >= self.size:
+            return False
+        
+        return True
 
     @staticmethod
     def is_in_diagonal(queen1: Queen, queen2: Queen) -> bool:
