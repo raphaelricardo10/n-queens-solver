@@ -74,9 +74,16 @@ class Chessboard:
         return True
 
     def add_queen(self, new_queen: Queen):
-        self.queens.add(new_queen)
         self.available_rows.remove(new_queen.row)
-        self.available_columns.remove(new_queen.column)
+
+        try:
+            self.available_columns.remove(new_queen.column)
+
+        except KeyError:
+            self.available_rows.add(new_queen.row)
+            raise
+
+        self.queens.add(new_queen)
 
     def remove_queen(self, queen: Queen):
         self.queens.remove(queen)
