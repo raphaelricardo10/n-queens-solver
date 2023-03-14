@@ -4,7 +4,10 @@ from itertools import cycle
 from dataclasses import dataclass, field
 
 from domain import Queen
-from solvers.greedy_solver.knight_movements import KnightMovements, KnightMovementsMember
+from solvers.greedy_solver.knight_movements import (
+    KnightMovements,
+    KnightMovementsMember,
+)
 
 
 @dataclass
