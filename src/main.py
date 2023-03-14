@@ -1,7 +1,7 @@
 import timeit
 from solvers import RecursiveSolver
 
-for i in range(14, 16):
+for i in range(4, 13):
     solver = RecursiveSolver(i)
     solutions = solver.search_n_queens()
     exec_time = timeit.timeit(lambda: solver.search_n_queens(), number=1)
